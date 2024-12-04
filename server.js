@@ -18,45 +18,30 @@ app.use(bodyParser.json());
 let clients = [];
 
 wss.on('connection', (ws) => {
+    console.log('New WebSocket connection');
     clients.push(ws);
+    
+    // Handle incoming messages
+    ws.on('message', (message) => {
+        console.log('Received:', message);
+    });
+
+    // Remove client on connection close
     ws.on('close', () => {
         clients = clients.filter(client => client !== ws);
     });
+
+    // Handle errors
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
 });
 
+// Route to receive signals
 app.post('/signal', (req, res) => {
     const data = req.body;
     clients.forEach(client => {
-        client.send(JSON.stringify(data));
+        client.send(JSON.stringify(data));  // Send the signal to all connected clients
     });
-    res.sendStatus(200);
+    res.sendStatus(200);  // Respond to signal POST request
 });
-
-function connectWebSocket() {
-    const socket = new WebSocket('wss://sample-server-plq2.onrender.com');
-    
-    socket.onopen = () => {
-        console.log('WebSocket connection established.');
-    };
-
-    socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (toggle_val === 1) {
-            showPopup(data.name, data.eta, data.severity, data.lat, data.lng);
-        }
-    };
-
-    socket.onerror = (error) => {
-        console.error('WebSocket error: ', error);
-    };
-
-    socket.onclose = (event) => {
-        console.log('WebSocket connection closed. Attempting to reconnect...');
-        // Reconnect after a delay
-        setTimeout(connectWebSocket, 5000); // 5 seconds
-    };
-}
-
-// Initialize WebSocket connection
-connectWebSocket();
-
