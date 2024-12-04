@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const wss = new WebSocket.Server({ port: 8080 });
 
+const PORT = process.env.PORT || 3000;
+
+
 app.use(bodyParser.json());
 
 let clients = [];
@@ -24,4 +27,4 @@ app.post('/signal', (req, res) => {
     res.sendStatus(200);
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
