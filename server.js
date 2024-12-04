@@ -1,12 +1,17 @@
 const express = require('express');
-const WebSocket = require('ws');
+const WebSocket = require('ws');  // Use 'ws', not 'wss'
 const bodyParser = require('body-parser');
 
 const app = express();
-const wss = new WebSocket.Server({ port: 8080 });
-
 const PORT = process.env.PORT || 3000;
 
+// Create the HTTP server
+const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+// Create the WebSocket server using the same HTTP server
+const wss = new WebSocket.Server({ server });
 
 app.use(bodyParser.json());
 
@@ -26,5 +31,3 @@ app.post('/signal', (req, res) => {
     });
     res.sendStatus(200);
 });
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
