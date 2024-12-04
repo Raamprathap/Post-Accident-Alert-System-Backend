@@ -31,3 +31,32 @@ app.post('/signal', (req, res) => {
     });
     res.sendStatus(200);
 });
+
+function connectWebSocket() {
+    const socket = new WebSocket('wss://sample-server-plq2.onrender.com');
+    
+    socket.onopen = () => {
+        console.log('WebSocket connection established.');
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (toggle_val === 1) {
+            showPopup(data.name, data.eta, data.severity, data.lat, data.lng);
+        }
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket error: ', error);
+    };
+
+    socket.onclose = (event) => {
+        console.log('WebSocket connection closed. Attempting to reconnect...');
+        // Reconnect after a delay
+        setTimeout(connectWebSocket, 5000); // 5 seconds
+    };
+}
+
+// Initialize WebSocket connection
+connectWebSocket();
+
