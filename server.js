@@ -1,9 +1,9 @@
 const express = require('express');
-const WebSocket = require('ws');  // Use 'ws', not 'wss'
+const WebSocket = require('ws');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;  // Ensure the app uses the dynamic port
 
 // Create the HTTP server
 const server = app.listen(PORT, () => {
