@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = process.env.PORT || 3000;  // Ensure the app uses the dynamic port
+const PORT = process.env.PORT || 3000;
 
 // Create the HTTP server
 const server = app.listen(PORT, () => {
@@ -17,31 +17,35 @@ app.use(bodyParser.json());
 
 let clients = [];
 
+// Handle WebSocket connections
 wss.on('connection', (ws) => {
     console.log('New WebSocket connection');
     clients.push(ws);
-    
-    // Handle incoming messages
-    ws.on('message', (message) => {
-        console.log('Received:', message);
-    });
 
-    // Remove client on connection close
     ws.on('close', () => {
+        console.log('WebSocket connection closed');
         clients = clients.filter(client => client !== ws);
     });
 
-    // Handle errors
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
     });
 });
 
-// Route to receive signals
+// Handle HTTP POST requests to the /signal endpoint
 app.post('/signal', (req, res) => {
     const data = req.body;
+
+    // Log the received data
+    console.log('Received POST request:', data);
+
+    // Broadcast data to all connected WebSocket clients
     clients.forEach(client => {
-        client.send(JSON.stringify(data));  // Send the signal to all connected clients
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
     });
-    res.sendStatus(200);  // Respond to signal POST request
+
+    // Respond to the device
+    res.sendStatus(200); // HTTP 200 OK
 });
