@@ -59,27 +59,20 @@ app.post('/signal', async (req, res) => {
         const lon = data.lng;
 
         try {
-            // Find the nearest hospital
-            const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="hospital"](around:25000,${lat},${lon});out;`;
-            const response = await fetch(overpassUrl);
-            const hospitalData = await response.json();
-
-            const hospitals = hospitalData.elements;
-
-            if (hospitals.length === 0) {
-                console.log('No hospitals found nearby.');
-                res.status(404).send({ message: 'No hospitals found nearby.' });
-                return;
-            }
+            // Hardcoded list of hospitals
+            const hospitals = {
+                "Ganga Hospital": { name: "Ganga Hospital", lat: 11.0225, lng: 76.9606 },
+                "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755 }
+            };
 
             // Find the nearest hospital
             let nearestHospital = null;
             let minDistance = Infinity;
 
-            hospitals.forEach(hospital => {
+            Object.values(hospitals).forEach(hospital => {
                 const distance = Math.sqrt(
                     Math.pow(hospital.lat - lat, 2) +
-                    Math.pow(hospital.lon - lon, 2)
+                    Math.pow(hospital.lng - lon, 2)
                 );
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -87,14 +80,22 @@ app.post('/signal', async (req, res) => {
                 }
             });
 
-            // Add the nearest hospital's lat/lng to the data
+            if (!nearestHospital) {
+                console.log('No hospitals found nearby.');
+                res.status(404).send({ message: 'No hospitals found nearby.' });
+                return;
+            }
+
+            // Add the nearest hospital's details to the data
             data.hlat = nearestHospital.lat;
-            data.hlng = nearestHospital.lon;
+            data.hlng = nearestHospital.lng;
+            data.hospital_name = nearestHospital.name;
 
             // Log the nearest hospital
             console.log('Nearest hospital found:', {
+                name: nearestHospital.name,
                 hlat: nearestHospital.lat,
-                hlng: nearestHospital.lon
+                hlng: nearestHospital.lng
             });
 
             // Broadcast the updated data to all connected WebSocket clients
@@ -107,8 +108,8 @@ app.post('/signal', async (req, res) => {
             // Respond to the POST request
             res.status(200).send({ message: 'Nearest hospital data broadcasted.', data });
         } catch (error) {
-            console.error('Error fetching hospital data:', error);
-            res.status(500).send({ message: 'Error fetching hospital data.', error });
+            console.error('Error processing hospital request:', error.message || error);
+            res.status(500).send({ message: 'Error processing hospital request.', error: error.message || error });
         }
     } else {
         // For other types, simply broadcast the data
