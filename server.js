@@ -1,8 +1,8 @@
-const WebSocket = require('ws');
-const bodyParser = require('body-parser');
+import WebSocket from 'ws';
+import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
-
 import express from 'express';
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;
