@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws'; // Use WebSocketServer explicitly
 import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
 import express from 'express';
@@ -13,7 +13,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Create the WebSocket server using the same HTTP server
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server }); // Corrected this line
 
 app.use(bodyParser.json());
 
@@ -39,7 +39,7 @@ wss.on('connection', (ws) => {
 
         // Broadcast the message to all other connected WebSocket clients
         clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== ws && client.readyState === ws.OPEN) {
                 client.send(message);
             }
         });
@@ -99,7 +99,7 @@ app.post('/signal', async (req, res) => {
 
             // Broadcast the updated data to all connected WebSocket clients
             clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
+                if (client.readyState === ws.OPEN) {
                     client.send(JSON.stringify(data));
                 }
             });
@@ -113,7 +113,7 @@ app.post('/signal', async (req, res) => {
     } else {
         // For other types, simply broadcast the data
         clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
+            if (client.readyState === ws.OPEN) {
                 client.send(JSON.stringify(data));
             }
         });
