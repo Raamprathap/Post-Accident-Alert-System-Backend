@@ -1,6 +1,5 @@
-import { WebSocketServer } from 'ws'; // Use WebSocketServer explicitly
+import { WebSocketServer, OPEN } from 'ws'; // Import OPEN explicitly
 import bodyParser from 'body-parser';
-import fetch from 'node-fetch';
 import express from 'express';
 
 const app = express();
@@ -13,7 +12,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Create the WebSocket server using the same HTTP server
-const wss = new WebSocketServer({ server }); // Corrected this line
+const wss = new WebSocketServer({ server });
 
 app.use(bodyParser.json());
 
@@ -37,9 +36,8 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         console.log('Message received from client:', message);
 
-        // Broadcast the message to all other connected WebSocket clients
         clients.forEach(client => {
-            if (client !== ws && client.readyState === ws.OPEN) {
+            if (client !== ws && client.readyState === OPEN) {
                 client.send(message);
             }
         });
@@ -50,22 +48,18 @@ wss.on('connection', (ws) => {
 app.post('/signal', async (req, res) => {
     const data = req.body;
 
-    // Log the received data
     console.log('Received POST request:', data);
 
-    // Check if the type is "hospital_request"
     if (data.type === "hospital_request") {
         const lat = data.lat;
         const lon = data.lng;
 
         try {
-            // Hardcoded list of hospitals
             const hospitals = {
                 "Ganga Hospital": { name: "Ganga Hospital", lat: 11.0225, lng: 76.9606 },
                 "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755 }
             };
 
-            // Find the nearest hospital
             let nearestHospital = null;
             let minDistance = Infinity;
 
@@ -86,40 +80,34 @@ app.post('/signal', async (req, res) => {
                 return;
             }
 
-            // Add the nearest hospital's details to the data
             data.hlat = nearestHospital.lat;
             data.hlng = nearestHospital.lng;
             data.hospital_name = nearestHospital.name;
 
-            // Log the nearest hospital
             console.log('Nearest hospital found:', {
                 name: nearestHospital.name,
                 hlat: nearestHospital.lat,
                 hlng: nearestHospital.lng
             });
 
-            // Broadcast the updated data to all connected WebSocket clients
             clients.forEach(client => {
-                if (client.readyState === ws.OPEN) {
+                if (client.readyState === OPEN) {
                     client.send(JSON.stringify(data));
                 }
             });
 
-            // Respond to the POST request
             res.status(200).send({ message: 'Nearest hospital data broadcasted.', data });
         } catch (error) {
             console.error('Error processing hospital request:', error.message || error);
             res.status(500).send({ message: 'Error processing hospital request.', error: error.message || error });
         }
     } else {
-        // For other types, simply broadcast the data
         clients.forEach(client => {
-            if (client.readyState === ws.OPEN) {
+            if (client.readyState === OPEN) {
                 client.send(JSON.stringify(data));
             }
         });
 
-        // Respond to the POST request
         res.status(200).send({ message: 'Data broadcasted.' });
     }
 });
