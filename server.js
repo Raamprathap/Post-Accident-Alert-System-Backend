@@ -1,9 +1,10 @@
-const express = require('express');
 const WebSocket = require('ws');
 const bodyParser = require('body-parser');
 import fetch from 'node-fetch';
 
+import express from 'express';
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 // Create the HTTP server
