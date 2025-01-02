@@ -30,6 +30,18 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => {
         console.error('WebSocket error:', error);
     });
+
+    // Broadcast messages received from one WebSocket client to all others
+    ws.on('message', (message) => {
+        console.log('Message received from client:', message);
+
+        // Broadcast the message to all other connected WebSocket clients
+        clients.forEach(client => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    });
 });
 
 // Handle HTTP POST requests to the /signal endpoint
