@@ -1,4 +1,4 @@
-import { WebSocketServer, OPEN } from 'ws'; // Import OPEN explicitly
+import { WebSocketServer } from 'ws'; // Only import WebSocketServer
 import bodyParser from 'body-parser';
 import express from 'express';
 
@@ -37,7 +37,7 @@ wss.on('connection', (ws) => {
         console.log('Message received from client:', message);
 
         clients.forEach(client => {
-            if (client !== ws && client.readyState === OPEN) {
+            if (client !== ws && client.readyState === 1) { // Use 1 for open state
                 client.send(message);
             }
         });
@@ -91,7 +91,7 @@ app.post('/signal', async (req, res) => {
             });
 
             clients.forEach(client => {
-                if (client.readyState === OPEN) {
+                if (client.readyState === 1) { // Use 1 for open state
                     client.send(JSON.stringify(data));
                 }
             });
@@ -103,7 +103,7 @@ app.post('/signal', async (req, res) => {
         }
     } else {
         clients.forEach(client => {
-            if (client.readyState === OPEN) {
+            if (client.readyState === 1) { // Use 1 for open state
                 client.send(JSON.stringify(data));
             }
         });
