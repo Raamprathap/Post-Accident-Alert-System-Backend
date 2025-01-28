@@ -128,7 +128,7 @@ app.post('/signal', async (req, res) => {
                     Math.pow(hospital.lat - lat, 2) +
                     Math.pow(hospital.lng - lon, 2)
                 );
-                if (distance < minDistance && (hospital.lat != parseFloat(data.hlat) && hospital.lng != parseFloat(data.hlng))) {
+                if (distance < minDistance && (hospital.lat !== parseFloat(data.hlat) && hospital.lng !== parseFloat(data.hlng))) {
                     minDistance = distance;
                     nearestHospital = hospital;
                 }
