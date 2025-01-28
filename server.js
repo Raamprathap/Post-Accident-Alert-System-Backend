@@ -110,20 +110,20 @@ app.post('/signal', async (req, res) => {
             res.status(500).send({ message: 'Error processing hospital request.', error: error.message || error });
         }
     } else if (data.type === "Deny_request") {
-        console.log("Yo");
+        console.log("Processing deny request");
         const lat = parseFloat(data.lat);
         const lon = parseFloat(data.lng);
-        data.type = 'hospital_request'
-
+        data.type = 'hospital_request';
+    
         try {
             const hospitals = {
                 "Ganga Hospital": { name: "Ganga Hospital", lat: 11.0225, lng: 76.9606 },
                 "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755 }
             };
-
+    
             let nearestHospital = null;
             let minDistance = Infinity;
-
+    
             Object.values(hospitals).forEach(hospital => {
                 const distance = Math.sqrt(
                     Math.pow(hospital.lat - lat, 2) +
@@ -134,33 +134,25 @@ app.post('/signal', async (req, res) => {
                     nearestHospital = hospital;
                 }
             });
-
+    
             if (!nearestHospital) {
-                console.log('No hospitals found nearby.');
-                res.status(404).send({ message: 'No hospitals found nearby.' });
-                return;
+                return res.status(404).json({ message: 'No hospitals found nearby.' });
             }
-
+    
             data.hlat = nearestHospital.lat;
             data.hlng = nearestHospital.lng;
             data.hospital_name = nearestHospital.name;
-
-            console.log('Nearest hospital found:', {
-                name: nearestHospital.name,
-                hlat: nearestHospital.lat,
-                hlng: nearestHospital.lng
-            });
-
+    
             clients.forEach(client => {
-                if (client.readyState === 1) { // Use 1 for open state
+                if (client.readyState === 1) {
                     client.send(JSON.stringify(data));
                 }
             });
-
-            res.status(200).send({ message: 'Nearest hospital data broadcasted.', data });
+    
+            res.status(200).json({ message: 'Nearest hospital data broadcasted.', data });
         } catch (error) {
-            console.error('Error processing hospital request:', error.message || error);
-            res.status(500).send({ message: 'Error processing hospital request.', error: error.message || error });
+            console.error('Error processing hospital request:', error);
+            res.status(500).json({ message: 'Error processing hospital request.', error: error.message });
         }
     } else {
         clients.forEach(client => {
