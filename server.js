@@ -34,26 +34,33 @@ wss.on('connection', (ws) => {
 
     // Broadcast messages received from one WebSocket client to all others
     ws.on('message', (message) => {
-        console.log('Message received from client:', message);
-
-        clients.forEach(client => {
-            if (client !== ws && client.readyState === 1) { // Use 1 for open state
-                client.send(message);
-            }
-        });
-    });
+        const messageStr = message.toString(); // Convert Buffer to string
+        console.log('Message received from client:', messageStr);
+    
+        try {
+            const data = JSON.parse(messageStr); // Parse JSON
+            console.log('Parsed message:', data);
+    
+            clients.forEach(client => {
+                if (client !== ws && client.readyState === 1) {
+                    client.send(JSON.stringify(data)); // Send the parsed message
+                }
+            });
+        } catch (err) {
+            console.error('Error parsing message as JSON:', err);
+        }
+    });    
 });
 
 // Handle HTTP POST requests to the /signal endpoint
 app.post('/signal', async (req, res) => {
-    let data = req.body;
-    data = data.toString();
+    const data = req.body;
 
     console.log('Received POST request:', data);
 
     if (data.type === "hospital_request") {
-        const lat = data.lat;
-        const lon = data.lng;
+        const lat = parseFloat(data.lat);
+        const lon = parseFloat(data.lng);
 
         try {
             const hospitals = {
@@ -121,7 +128,7 @@ app.post('/signal', async (req, res) => {
                     Math.pow(hospital.lat - lat, 2) +
                     Math.pow(hospital.lng - lon, 2)
                 );
-                if (distance < minDistance && (hospital.lat != data.hlat && hospital.lng != data.hlng)) {
+                if (distance < minDistance && (hospital.lat != parseFloat(data.hlat) && hospital.lng != parseFloat(data.hlng))) {
                     minDistance = distance;
                     nearestHospital = hospital;
                 }
