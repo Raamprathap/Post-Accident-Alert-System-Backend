@@ -61,12 +61,7 @@ wss.on('connection', (ws) => {
     });    
 });
 
-// Handle HTTP POST requests to the /signal endpoint
-app.post('/signal', async (req, res) => {
-    const data = req.body;
-
-    console.log('Received POST request:', data);
-
+async function handle_request(data, res){
     if (data.type === "hospital_request") {
         const lat = parseFloat(data.lat);
         const lon = parseFloat(data.lng);
@@ -145,7 +140,9 @@ app.post('/signal', async (req, res) => {
             });
     
             if (!nearestHospital) {
-                return res.status(404).json({ message: 'No hospitals found nearby.' });
+                handle_request(data, res);
+                res.status(404).json({ message: 'No hospitals found nearby.' });
+                return 
             }
     
             data.hlat = nearestHospital.lat;
@@ -171,5 +168,15 @@ app.post('/signal', async (req, res) => {
         });
 
         res.status(200).send({ message: 'Data broadcasted.' });
+
     }
+}
+
+// Handle HTTP POST requests to the /signal endpoint
+app.post('/signal', (req, res) => {
+    const data = req.body;
+
+    console.log('Received POST request:', data);
+
+    handle_request(data, res);
 });
