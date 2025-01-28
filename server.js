@@ -110,6 +110,7 @@ app.post('/signal', async (req, res) => {
             res.status(500).send({ message: 'Error processing hospital request.', error: error.message || error });
         }
     } else if (data.type === "Deny_request") {
+        console.log("Yo");
         const lat = parseFloat(data.lat);
         const lon = parseFloat(data.lng);
         data.type = 'hospital_request'
