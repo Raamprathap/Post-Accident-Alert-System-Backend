@@ -1,8 +1,17 @@
 import { WebSocketServer } from 'ws'; // Only import WebSocketServer
 import bodyParser from 'body-parser';
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
+
+// Add CORS middleware
+app.use(cors({
+    origin: 'https://sample-front-o2uw.onrender.com',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+}));
+
 
 const PORT = process.env.PORT || 3000;
 
