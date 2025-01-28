@@ -104,6 +104,7 @@ app.post('/signal', async (req, res) => {
     } else if (data.type === "Deny_request") {
         const lat = data.lat;
         const lon = data.lng;
+        data.type = 'hospital_request'
 
         try {
             const hospitals = {
