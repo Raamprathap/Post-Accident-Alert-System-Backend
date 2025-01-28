@@ -46,7 +46,8 @@ wss.on('connection', (ws) => {
 
 // Handle HTTP POST requests to the /signal endpoint
 app.post('/signal', async (req, res) => {
-    const data = req.body;
+    let data = req.body;
+    data = data.toString();
 
     console.log('Received POST request:', data);
 
