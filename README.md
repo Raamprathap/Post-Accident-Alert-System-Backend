@@ -98,6 +98,13 @@ ws.onmessage = function (event) {
 This project is licensed under the **ISC License**. See the [LICENSE](LICENSE) file for details.
 
 ---
+## Authors
 
-🎯 **Authors**: [Raam Prathap](https://github.com/Raamprathap)  
-📧 **Contact**: raamprathap17242@gmail.com
+- 👤 **Raam Prathap**  
+  📧 Email: [raamprathap17242@gmail.com](mailto:raamprathap17242@gmail.com)  
+  🔗 GitHub: [Raam Prathap](https://github.com/Raamprathap)  
+
+- 👤 **Akshay KS**  
+  📧 Email: [akshayks1005@gmail.com](mailto:akshayks1005@gmail.com)  
+  🔗 GitHub: [Akshay KS](https://github.com/akshayks13)  
+
