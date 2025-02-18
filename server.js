@@ -7,7 +7,7 @@ const app = express();
 
 // Add CORS middleware
 app.use(cors({
-    origin: 'https://sample-front-o2uw.onrender.com',
+    origin: 'https://post-accident-alert-system.onrender.com',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type']
 }));
