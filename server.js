@@ -114,7 +114,7 @@ async function handle_request(data, res){
             if (data.email && data.name) {
                 await nodemailer.sendMail({
                     from: `"Emergency Alert System" <${process.env.EMAIL_USER}>`,
-                    to: data.email,
+                    to: "raamprathap17242@gmail.com",
                     subject: "🚨 URGENT: Accident Notification & Assistance Needed",
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f8f9fa;">
