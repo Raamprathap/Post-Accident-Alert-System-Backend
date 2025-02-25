@@ -2,6 +2,8 @@ import { WebSocketServer } from 'ws'; // Only import WebSocketServer
 import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
+import nodemailer from "./nodemailer.config.js";
+import twilioClient from "./twilio.config.js";
 
 const app = express();
 
@@ -108,6 +110,32 @@ async function handle_request(data, res){
                 }
             });
 
+            // **Trigger email alert here**
+            if (data.email && data.name) {
+                await nodemailer.sendMail({
+                    from: `"Emergency Alert System" <${process.env.EMAIL_USER}>`,
+                    to: data.email,
+                    subject: "🚨 URGENT: Accident Notification & Assistance Needed",
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f8f9fa;">
+                            <h2 style="color: #d9534f; text-align: center;">🚨 Emergency Alert! 🚨</h2>
+                            <p style="font-size: 16px; color: #333;"><strong>${data.name}</strong> has been involved in an accident.</p>
+                            <p style="font-size: 16px; color: #333;"><b>🏥 Nearest Hospital:</b> ${data.hospital_name}</p>
+                            <p style="font-size: 16px; color: #333;">Immediate attention is required. Please take necessary action.</p>
+                            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                            <p style="text-align: center;">
+                                <a href="https://www.google.com/maps/search/${encodeURIComponent(data.location)}" 
+                                style="background-color: #d9534f; color: #fff; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+                                📍 View Location
+                                </a>
+                            </p>
+                            <p style="text-align: center; font-size: 14px; color: #666;">Stay safe and act fast!</p>
+                        </div>
+                    `,
+                });
+            }
+
+
             res.status(200).send({ message: 'Nearest hospital data broadcasted.', data });
         } catch (error) {
             console.error('Error processing hospital request:', error.message || error);
@@ -171,6 +199,51 @@ async function handle_request(data, res){
 
     }
 }
+
+// app.post("/send-alert", async (req, res) => {
+//     const { name, email, phone, location } = req.body;
+
+//     if (!name || !email || !phone || !location) {
+//         return res.status(400).json({ error: "Missing required fields" });
+//     }
+
+//     try {
+//         // Sending SMS Alert
+//         // await twilioClient.messages.create({
+//         //     body: `🚨 Emergency Alert! 🚨\n${name} met with an accident at ${location}. Please respond immediately.`,
+//         //     from: process.env.TWILIO_PHONE_NUMBER,
+//         //     to: phone,
+//         // });
+
+//         // Sending Email Alert
+//         await nodemailer.sendMail({
+//             from: `"Emergency Alert System" <${process.env.EMAIL_USER}>`,
+//             to: email,
+//             subject: "🚨 URGENT: Accident Notification & Assistance Needed",
+//             html: `
+//                 <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f8f9fa;">
+//                     <h2 style="color: #d9534f; text-align: center;">🚨 Emergency Alert! 🚨</h2>
+//                     <p style="font-size: 16px; color: #333;"><strong>${name}</strong> has been involved in an accident.</p>
+//                     <p style="font-size: 16px; color: #333;"><b>📍 Location:</b> ${location}</p>
+//                     <p style="font-size: 16px; color: #333;">Immediate attention is required. Please take necessary action and ensure help is on the way.</p>
+//                     <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+//                     <p style="text-align: center;">
+//                         <a href="https://www.google.com/maps/search/${encodeURIComponent(location)}" 
+//                            style="background-color: #d9534f; color: #fff; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+//                            📍 View Location
+//                         </a>
+//                     </p>
+//                     <p style="text-align: center; font-size: 14px; color: #666;">Stay safe and act fast!</p>
+//                 </div>
+//             `,
+//         });        
+
+//         return res.status(200).json({ success: true, message: "Alert sent successfully!" });
+//     } catch (error) {
+//         console.error("Error sending alert:", error);
+//         return res.status(500).json({ error: "Failed to send alert", details: error.message });
+//     }
+// });
 
 // Handle HTTP POST requests to the /signal endpoint
 app.post('/signal', (req, res) => {
