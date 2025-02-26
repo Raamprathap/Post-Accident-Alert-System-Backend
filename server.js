@@ -110,7 +110,7 @@ async function handle_request(data, res){
             });
 
             // **Trigger email alert here**
-            if (data.email && data.name) {
+            if (true) {
                 await nodemailer.sendMail({
                     from: `"Emergency Alert System" <${process.env.EMAIL_USER}>`,
                     to: "raamprathap17242@gmail.com",
@@ -118,7 +118,7 @@ async function handle_request(data, res){
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f8f9fa;">
                             <h2 style="color: #d9534f; text-align: center;">🚨 Emergency Alert! 🚨</h2>
-                            <p style="font-size: 16px; color: #333;"><strong>${data.name}</strong> has been involved in an accident.</p>
+                            <p style="font-size: 16px; color: #333;"><strong>Raam</strong> has been involved in an accident.</p>
                             <p style="font-size: 16px; color: #333;"><b>🏥 Nearest Hospital:</b> ${data.hospital_name}</p>
                             <p style="font-size: 16px; color: #333;">Immediate attention is required. Please take necessary action.</p>
                             <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
