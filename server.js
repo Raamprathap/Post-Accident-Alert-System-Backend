@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
 import nodemailer from "./nodemailer.config.js";
-import twilioClient from "./twilio.config.js";
 
 const app = express();
 
