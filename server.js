@@ -97,7 +97,7 @@ async function handle_request(data, res) {
     if (data.type === "status_update") {
         console.log("🔄 Updating hospital status");
         if (hospitals[data.hname]) {
-            hospitals[data.hname].status = !hospitals[data.hname].status;
+            hospitals[data.hname].status = data.status;
             console.log(hospitals[data.hname].name);
             console.log(hospitals[data.hname].status);
             res.status(200).json({ message: "Status updated successfully", status: hospitals[data.hname].status });
@@ -169,11 +169,8 @@ async function handle_request(data, res) {
             data.hlng = nearestHospital.lng;
             data.hospital_name = nearestHospital.name;
             data.type = "hospital_request";
-            console.log("yo");
             clients.forEach(client => {
-                console.log("yo1");
                 if (client.readyState === 1) {
-                    console.log("yo2");
                     client.send(JSON.stringify(data));
                 }
             });
