@@ -7,11 +7,18 @@ import nodemailer from "./nodemailer.config.js";
 const app = express();
 
 // Add CORS middleware
-app.use(cors({
-    origin: 'https://post-accident-alert-system.onrender.com',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*"); // Allow all origins (Change * to specific domain for security)
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(200); // Handle preflight requests
+    }
+    
+    next();
+});
+
 
 const PORT = process.env.PORT || 3000;
 
