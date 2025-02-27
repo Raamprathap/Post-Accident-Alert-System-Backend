@@ -98,6 +98,8 @@ async function handle_request(data, res) {
         console.log("🔄 Updating hospital status");
         if (hospitals[data.hname]) {
             hospitals[data.hname].status = data.status;
+            console.log(data.status);
+            console.log(hospitals[data.hname].status);
             console.log(hospitals[data.hname].name);
             console.log(hospitals[data.hname].status);
             res.status(200).json({ message: "Status updated successfully", status: hospitals[data.hname].status });
