@@ -62,16 +62,19 @@ wss.on('connection', (ws) => {
     });    
 });
 
+let hospitals = {
+    "Ganga Hospital": { name: "Ganga Hospital", lat: 11.0225, lng: 76.9606, status: false},
+    "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755, status: false }
+};
+
 async function handle_request(data, res){
-    if (data.type === "hospital_request") {
+    if(data.type === "status_update"){
+        hospitals[data.hname].status = hospitals[data.hname].status === false ? true : false;
+    }else if (data.type === "hospital_request") {
         const lat = parseFloat(data.lat);
         const lon = parseFloat(data.lng);
 
         try {
-            const hospitals = {
-                "Ganga Hospital": { name: "Ganga Hospital", lat: 11.0225, lng: 76.9606 },
-                "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755 }
-            };
 
             let nearestHospital = null;
             let minDistance = Infinity;
@@ -160,7 +163,7 @@ async function handle_request(data, res){
                     Math.pow(hospital.lat - lat, 2) +
                     Math.pow(hospital.lng - lon, 2)
                 );
-                if (distance < minDistance && (hospital.lat !== parseFloat(data.hlat) && hospital.lng !== parseFloat(data.hlng))) {
+                if (distance < minDistance && hospital.status){
                     minDistance = distance;
                     nearestHospital = hospital;
                 }
