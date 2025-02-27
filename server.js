@@ -166,6 +166,7 @@ async function handle_request(data, res) {
         let nearestHospital = findNearestHospital(lat, lon);
 
         if (nearestHospital) {
+            console.log(nearestHospital.name);
             console.log('🏥 Hospital became available:', nearestHospital.name);
             data.hlat = nearestHospital.lat;
             data.hlng = nearestHospital.lng;
