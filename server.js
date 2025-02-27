@@ -184,6 +184,8 @@ async function handle_request(data, res) {
                     data.hlng = nearestHospital.lng;
                     data.hospital_name = nearestHospital.name;
                     clients.forEach(client => {
+                        console.log("yo");
+                        console.log(data);
                         if (client.readyState === 1) {
                             console.log(data);
                             client.send(JSON.stringify(data));
