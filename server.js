@@ -183,6 +183,7 @@ async function handle_request(data, res) {
                     data.hlat = nearestHospital.lat;
                     data.hlng = nearestHospital.lng;
                     data.hospital_name = nearestHospital.name;
+                    data.type = "hospital_request";
                     clients.forEach(client => {
                         if (client.readyState === 1) {
                             client.send(JSON.stringify(data));
