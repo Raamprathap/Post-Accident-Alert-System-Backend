@@ -156,6 +156,19 @@ async function handle_request(data, res) {
 
         let nearestHospital = findNearestHospital(lat, lon);
 
+        if (nearestHospital) {
+            clearInterval(interval);
+            console.log('🏥 Hospital became available:', nearestHospital.name);
+            data.hlat = nearestHospital.lat;
+            data.hlng = nearestHospital.lng;
+            data.hospital_name = nearestHospital.name;
+            clients.forEach(client => {
+                if (client.readyState === 1) {
+                    client.send(JSON.stringify(data));
+                }
+            });
+        }
+
         if (!nearestHospital) {
             console.log('🚫 No available hospitals. Waiting for status change...');
             const interval = setInterval(() => {
@@ -172,7 +185,7 @@ async function handle_request(data, res) {
                         }
                     });
                 }
-            }, 5000); // Check every 5 seconds
+            }, 1000); // Check every 5 seconds
             return res.status(202).json({ message: 'Waiting for hospital availability.' });
         }
     } else {
