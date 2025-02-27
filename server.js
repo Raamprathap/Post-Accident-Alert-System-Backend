@@ -65,6 +65,24 @@ let hospitals = {
     "Amrita Clinic": { name: "Amrita Clinic", lat: 10.9017502, lng: 76.9011755, status: false }
 };
 
+function findNearestHospital(lat, lon) {
+    let nearestHospital = null;
+    let minDistance = Infinity;
+
+    Object.values(hospitals).forEach(hospital => {
+        if (hospital.status) { // Check only active hospitals
+            const distance = Math.sqrt(
+                Math.pow(hospital.lat - lat, 2) + Math.pow(hospital.lng - lon, 2)
+            );
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestHospital = hospital;
+            }
+        }
+    });
+    return nearestHospital;
+}
+
 // Function to process hospital requests
 async function handle_request(data, res) {
     if (data.type === "status_update") {
@@ -80,20 +98,7 @@ async function handle_request(data, res) {
             const lat = parseFloat(data.lat);
             const lon = parseFloat(data.lng);
 
-            let nearestHospital = null;
-            let minDistance = Infinity;
-
-            Object.values(hospitals).forEach(hospital => {
-                if (hospital.status) { // Check only active hospitals
-                    const distance = Math.sqrt(
-                        Math.pow(hospital.lat - lat, 2) + Math.pow(hospital.lng - lon, 2)
-                    );
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        nearestHospital = hospital;
-                    }
-                }
-            });
+            let nearestHospital = findNearestHospital(lat, lon);
 
             if (!nearestHospital) {
                 console.log('🚫 No hospitals found nearby.');
@@ -139,6 +144,32 @@ async function handle_request(data, res) {
         } catch (error) {
             console.error('⚠️ Error processing hospital request:', error);
             res.status(500).json({ message: 'Error processing hospital request.', error: error.message });
+        }
+    }else if (data.type === "Deny_request") {
+        console.log("🚫 Deny request received, searching for next available hospital...");
+        const lat = parseFloat(data.lat);
+        const lon = parseFloat(data.lng);
+
+        let nearestHospital = findNearestHospital(lat, lon);
+
+        if (!nearestHospital) {
+            console.log('🚫 No available hospitals. Waiting for status change...');
+            const interval = setInterval(() => {
+                nearestHospital = findNearestHospital(lat, lon);
+                if (nearestHospital) {
+                    clearInterval(interval);
+                    console.log('🏥 Hospital became available:', nearestHospital.name);
+                    data.hlat = nearestHospital.lat;
+                    data.hlng = nearestHospital.lng;
+                    data.hospital_name = nearestHospital.name;
+                    clients.forEach(client => {
+                        if (client.readyState === 1) {
+                            client.send(JSON.stringify(data));
+                        }
+                    });
+                }
+            }, 5000); // Check every 5 seconds
+            return res.status(202).json({ message: 'Waiting for hospital availability.' });
         }
     } else {
         console.log('❓ Unknown request type:', data.type);
