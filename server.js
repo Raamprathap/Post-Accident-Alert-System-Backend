@@ -69,6 +69,7 @@ let hospitals = {
 
 async function handle_request(data, res){
     if(data.type === "status_update"){
+        console.log("status update");
         hospitals[data.hname].status = hospitals[data.hname].status === false ? true : false;
     }else if (data.type === "hospital_request") {
         const lat = parseFloat(data.lat);
