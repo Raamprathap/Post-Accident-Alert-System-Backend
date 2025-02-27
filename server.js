@@ -111,6 +111,22 @@ async function handle_request(data, res) {
 
             if (!nearestHospital) {
                 console.log('🚫 No hospitals found nearby.');
+                let interval = setInterval(() => {
+                    nearestHospital = findNearestHospital(lat, lon);
+                    if (nearestHospital) {
+                        clearInterval(interval);
+                        console.log('🏥 Hospital became available:', nearestHospital.name);
+                        data.hlat = nearestHospital.lat;
+                        data.hlng = nearestHospital.lng;
+                        data.hospital_name = nearestHospital.name;
+                        data.type = "hospital_request";
+                        clients.forEach(client => {
+                            if (client.readyState === 1) {
+                                client.send(JSON.stringify(data));
+                            }
+                        });
+                    }
+                }, 5000); // Check every 5 seconds
                 return res.status(404).json({ message: 'No hospitals found nearby.' });
             }
 
@@ -137,7 +153,7 @@ async function handle_request(data, res) {
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f8f9fa;">
                         <h2 style="color: #d9534f; text-align: center;">🚨 Emergency Alert! 🚨</h2>
-                        <p><strong>Raam</strong> has been involved in an accident.</p>
+                        <p><strong>${data.name}</strong> has been involved in an accident.</p>
                         <p><b>🏥 Nearest Hospital:</b> ${data.hospital_name}</p>
                         <p>Immediate attention is required.</p>
                         <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
