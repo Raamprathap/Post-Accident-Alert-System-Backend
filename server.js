@@ -183,6 +183,7 @@ async function handle_request(data, res) {
                     data.hlat = nearestHospital.lat;
                     data.hlng = nearestHospital.lng;
                     data.hospital_name = nearestHospital.name;
+                    console.log("yo");
                     clients.forEach(client => {
                         console.log("yo");
                         console.log(data);
