@@ -70,6 +70,8 @@ function findNearestHospital(lat, lon) {
     let minDistance = Infinity;
 
     Object.values(hospitals).forEach(hospital => {
+        console.log(hospital.name);
+        console.log(hospital.status);
         if (hospital.status) { // Check only active hospitals
             const distance = Math.sqrt(
                 Math.pow(hospital.lat - lat, 2) + Math.pow(hospital.lng - lon, 2)
@@ -89,6 +91,8 @@ async function handle_request(data, res) {
         console.log("🔄 Updating hospital status");
         if (hospitals[data.hname]) {
             hospitals[data.hname].status = !hospitals[data.hname].status;
+            console.log(hospitals[data.hname].name);
+            console.log(hospitals[data.hname].status);
             res.status(200).json({ message: "Status updated successfully", status: hospitals[data.hname].status });
         } else {
             res.status(400).json({ error: "Hospital not found" });
