@@ -175,24 +175,32 @@ async function handle_request(data, res) {
             });
         } else {
             console.log('🚫 No available hospitals. Waiting for status change...');
+            console.log("🚀 Starting setInterval to check for hospital availability...");
+
             let interval = setInterval(() => {
+                console.log("🔄 Checking for hospitals...");
                 nearestHospital = findNearestHospital(lat, lon);
+                console.log("🔍 Nearest hospital:", nearestHospital);
+
                 if (nearestHospital) {
                     console.log('🏥 Hospital became available:', nearestHospital.name);
                     data.hlat = nearestHospital.lat;
                     data.hlng = nearestHospital.lng;
                     data.hospital_name = nearestHospital.name;
-                    console.log("yo");
+
+                    clearInterval(interval); // Stop checking
+
+                    console.log("✅ Sending data to clients...");
                     clients.forEach(client => {
-                        console.log("yo");
+                        console.log("yo");  // Should always log if this runs
                         console.log(data);
                         if (client.readyState === 1) {
-                            console.log(data);
+                            console.log("📤 Sending data:", data);
                             client.send(JSON.stringify(data));
                         }
                     });
                 }
-            }, 5000); // Check every 5 seconds
+            }, 5000);
             return res.status(202).json({ message: 'Waiting for hospital availability.' });
         }
     } else {
